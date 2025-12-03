@@ -41,7 +41,7 @@ app.title = "Churn Dashboard Profissional"
 # ------------------------
 BODY_STYLE = {
     'fontFamily':'Arial, sans-serif', 
-    'backgroundColor':'#e0e0e0',  # fundo cinza
+    'backgroundColor':'#e0e0e0',
     'color':'#333333',
     'padding':'20px'
 }
@@ -124,7 +124,7 @@ app.layout = html.Div(style=BODY_STYLE, children=[
             html.Button("Prever Churn", id='btn_prever', n_clicks=0, style={**BUTTON_STYLE, 'width':'100%'}),
             html.Div(id='resultado_churn', style={'marginTop':'10px','fontSize':'18px','fontWeight':'bold','textAlign':'center'})
         ], style={
-            'backgroundColor':'#f0f0f0',  # card cinza claro
+            'backgroundColor':'#f0f0f0',
             'padding':'20px',
             'borderRadius':'10px',
             'boxShadow':'0 2px 8px rgba(0,0,0,0.1)',
@@ -239,8 +239,10 @@ def prever_churn(n_clicks, mensagem):
     return ""
 
 # ------------------------
-# Servidor
+# Servidor para Render/Gunicorn (OBRIGATÓRIO)
 # ------------------------
+server = app.server
+
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8050))
     app.run(host='0.0.0.0', port=port, debug=False)
