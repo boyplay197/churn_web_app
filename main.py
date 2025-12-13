@@ -34,6 +34,7 @@ df['alerta'] = df['prob_churn'] >= CRITICO
 # App Dash
 # ------------------------
 app = dash.Dash(__name__)
+server = app.server  # <- Linha adicionada para o Render
 app.title = "Churn Dashboard Profissional"
 
 # ------------------------
@@ -243,4 +244,4 @@ def prever_churn(n_clicks, mensagem):
 # ------------------------
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8050))
-    app.run(host='0.0.0.0', port=port, debug=False) 
+    app.run(host='0.0.0.0', port=port, debug=False)
