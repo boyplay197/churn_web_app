@@ -4,3 +4,4 @@ nltk
 dash
 plotly
 gunicorn
+pandas
