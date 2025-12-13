@@ -34,14 +34,14 @@ df['alerta'] = df['prob_churn'] >= CRITICO
 # App Dash
 # ------------------------
 app = dash.Dash(__name__)
-app.title = "Churn Dashboard Premium"
+app.title = "Churn Dashboard Profissional"
 
 # ------------------------
-# Estilos gerais
+# Estilo neutro e corporativo
 # ------------------------
 BODY_STYLE = {
     'fontFamily':'Arial, sans-serif', 
-    'backgroundColor':'#f4f6f9',
+    'backgroundColor':'#e0e0e0',  # fundo cinza
     'color':'#333333',
     'padding':'20px'
 }
@@ -50,31 +50,23 @@ CARD_STYLE = {
     'display':'inline-block',
     'padding':'20px',
     'margin':'10px',
-    'borderRadius':'12px',
+    'borderRadius':'10px',
     'width':'23%',
     'backgroundColor':'#ffffff',
-    'boxShadow':'0 4px 12px rgba(0,0,0,0.1)',
+    'boxShadow':'0 2px 8px rgba(0,0,0,0.15)',
     'textAlign':'center',
-    'transition':'all 0.3s ease-in-out'
-}
-
-CARD_STYLE_HOVER = {
-    **CARD_STYLE,
-    'transform':'scale(1.05)',
-    'boxShadow':'0 8px 20px rgba(0,0,0,0.2)'
+    'transition':'all 0.5s ease'
 }
 
 BUTTON_STYLE = {
     'backgroundColor':'#007bff',
     'border':'none',
-    'padding':'12px 24px',
+    'padding':'10px 20px',
     'color':'#ffffff',
     'fontWeight':'bold',
     'cursor':'pointer',
-    'borderRadius':'6px',
-    'transition':'all 0.3s ease',
-    'boxShadow': '0px 5px 15px rgba(0, 123, 255, 0.2)',
-    'fontSize':'14px'
+    'borderRadius':'5px',
+    'transition':'all 0.3s ease'
 }
 
 H1_STYLE = {
@@ -84,15 +76,18 @@ H1_STYLE = {
     'marginBottom':'30px'
 }
 
-SPARKLINE_COLOR = '#007bff'
-
 # ------------------------
 # Layout
 # ------------------------
 app.layout = html.Div(style=BODY_STYLE, children=[
-    html.H1("Churn Dashboard Premium", style=H1_STYLE),
+    html.H1("Churn Dashboard Profissional", style=H1_STYLE),
 
-    html.Div(id='kpi_container', style={'textAlign':'center'}),
+    html.Div([
+        html.Div(id='kpi_total', style=CARD_STYLE),
+        html.Div(id='kpi_churn', style=CARD_STYLE),
+        html.Div(id='kpi_media', style=CARD_STYLE),
+        html.Div(id='kpi_critico', style=CARD_STYLE)
+    ], style={'textAlign':'center'}),
 
     html.Hr(),
 
@@ -109,11 +104,14 @@ app.layout = html.Div(style=BODY_STYLE, children=[
 
     html.Div([
         html.H3("Tabela de Clientes"),
-        dcc.Graph(id='tabela_clientes', style={'overflowX':'auto'})
+        dcc.Graph(id='tabela_clientes')
     ]),
 
     html.Hr(),
 
+    # ------------------------
+    # Nova Seção Teste e Exportação
+    # ------------------------
     html.Div([
         html.Div([
             html.H3("Teste de Churn em Tempo Real", style={'marginBottom':'10px'}),
@@ -121,22 +119,15 @@ app.layout = html.Div(style=BODY_STYLE, children=[
                 id='mensagem_input', 
                 type='text', 
                 placeholder="Digite mensagem do cliente", 
-                style={
-                    'width':'100%', 
-                    'padding':'12px', 
-                    'borderRadius':'6px',
-                    'border':'1px solid #007bff',
-                    'marginBottom':'10px',
-                    'transition':'all 0.3s ease'
-                }
+                style={'width':'100%', 'padding':'10px', 'borderRadius':'5px', 'border':'1px solid #ccc', 'marginBottom':'10px'}
             ),
             html.Button("Prever Churn", id='btn_prever', n_clicks=0, style={**BUTTON_STYLE, 'width':'100%'}),
             html.Div(id='resultado_churn', style={'marginTop':'10px','fontSize':'18px','fontWeight':'bold','textAlign':'center'})
         ], style={
-            'backgroundColor':'#ffffff',
+            'backgroundColor':'#f0f0f0',  # card cinza claro
             'padding':'20px',
-            'borderRadius':'12px',
-            'boxShadow':'0 4px 12px rgba(0,0,0,0.1)',
+            'borderRadius':'10px',
+            'boxShadow':'0 2px 8px rgba(0,0,0,0.1)',
             'maxWidth':'500px',
             'margin':'0 auto'
         }),
@@ -158,28 +149,21 @@ app.layout = html.Div(style=BODY_STYLE, children=[
 # ------------------------
 # Funções utilitárias
 # ------------------------
-def contador_animado(titulo, valor, sparkline=None):
+def contador_animado(titulo, valor):
     valor_str = "{:,}".format(int(valor))
-    children = [
+    return html.Div([
         html.Div(titulo, style={'fontSize':'14px','marginBottom':'5px'}),
         html.Div(valor_str, style={'fontSize':'26px','fontWeight':'bold','fontFamily':'Courier New, monospace'})
-    ]
-    if sparkline is not None:
-        fig = go.Figure(data=[go.Scatter(y=sparkline, mode='lines', line=dict(color=SPARKLINE_COLOR))])
-        fig.update_layout(
-            margin=dict(l=0,r=0,t=0,b=0),
-            height=40,
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False)
-        )
-        children.append(dcc.Graph(figure=fig, config={'displayModeBar': False}))
-    return html.Div(children)
+    ])
 
 # ------------------------
 # Callbacks
 # ------------------------
 @app.callback(
-    Output('kpi_container','children'),
+    Output('kpi_total','children'),
+    Output('kpi_churn','children'),
+    Output('kpi_media','children'),
+    Output('kpi_critico','children'),
     Input('intervalo_kpi','n_intervals')
 )
 def atualizar_kpis(n):
@@ -187,19 +171,12 @@ def atualizar_kpis(n):
     churn_total = df['churn'].sum()
     media_churn = df['prob_churn'].mean()
     critico = df['alerta'].sum()
-
-    # Pequenos sparklines para efeito visual
-    spark_total = np.random.randint(0, total, size=10)
-    spark_churn = np.random.randint(0, churn_total+1, size=10)
-    spark_media = np.random.rand(10)*100
-    spark_critico = np.random.randint(0, critico+1, size=10)
-
-    return [
-        html.Div(contador_animado("Total de Clientes", total, spark_total), style=CARD_STYLE),
-        html.Div(contador_animado("Clientes com Churn", churn_total, spark_churn), style=CARD_STYLE),
-        html.Div(contador_animado("Probabilidade Média (%)", media_churn*100, spark_media), style=CARD_STYLE),
-        html.Div(contador_animado("Clientes Críticos", critico, spark_critico), style=CARD_STYLE)
-    ]
+    return (
+        html.Div(contador_animado("Total de Clientes", total), style=CARD_STYLE),
+        html.Div(contador_animado("Clientes com Churn", churn_total), style=CARD_STYLE),
+        html.Div(contador_animado("Probabilidade Média (%)", media_churn*100), style=CARD_STYLE),
+        html.Div(contador_animado("Clientes Críticos", critico), style=CARD_STYLE)
+    )
 
 @app.callback(
     Output('grafico_barras', 'figure'),
@@ -227,7 +204,7 @@ def atualizar_tabela(prob_min):
                     fill_color='#007bff',
                     font=dict(color='white', size=12)),
         cells=dict(values=[df_filtrado[col] for col in df_filtrado.columns],
-                   fill_color=[['#f8f9fa', '#ffffff']*len(df_filtrado)],
+                   fill_color='#f8f9fa',
                    font=dict(color='black', size=11)))
     ])
     fig.update_layout(title={'text':'Clientes Filtrados','font_size':18,'x':0.5})
@@ -266,4 +243,4 @@ def prever_churn(n_clicks, mensagem):
 # ------------------------
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8050))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False) 
