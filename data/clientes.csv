@@ -1,23 +1,23 @@
 cliente_id,mensagem,churn
-1,Não consigo acessar minha conta,1
-2,Adorei o produto,0
-3,Serviço está muito lento,1
-4,Muito satisfeito,0
-5,Muito insatisfeito com a entrega,1
-6,Produto incrível,0
-7,Não recebi minha compra,1
-8,Produto veio errado,1
-9,Atendimento excelente,0
-10,Não gostei do serviço,1
-11,Muito satisfeito com o produto,0
-12,Entrega atrasada,1
-13,Suporte respondeu rápido,0
-14,Produto chegou danificado,1
-15,Não estou conseguindo atualizar meu cadastro,1
-16,Experiência muito boa até agora,0
-17,Aplicativo travando constantemente,1
-18,Ótimo custo-benefício,0
-19,Quero cancelar minha assinatura,1
-20,Produto muito bom,0
-21,Site travando frequentemente,1
-22,Atendimento cordial,0
+1,"Não consigo acessar minha conta",1
+2,"Adorei o produto",0
+3,"Serviço está muito lento",1
+4,"Muito satisfeito",0
+5,"Muito insatisfeito com a entrega",1
+6,"Produto incrível",0
+7,"Não recebi minha compra",1
+8,"Produto veio errado",1
+9,"Atendimento excelente",0
+10,"Não gostei do serviço",1
+11,"Muito satisfeito com o produto",0
+12,"Entrega atrasada",1
+13,"Suporte respondeu rápido",0
+14,"Produto chegou danificado",1
+15,"Não estou conseguindo atualizar meu cadastro",1
+16,"Experiência muito boa até agora",0
+17,"Aplicativo travando constantemente",1
+18,"Ótimo custo-benefício",0
+19,"Quero cancelar minha assinatura",1
+20,"Produto muito bom",0
+21,"Site travando frequentemente",1
+22,"Atendimento cordial",0
